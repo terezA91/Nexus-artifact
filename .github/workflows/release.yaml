@@ -1,1 +1,55 @@
+name: Upload Artifact
 
+on: 
+  release: 
+  
+env:
+  VERSION_TAG: ${{ github.event.release.tag_name}}
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout..
+              uses: actions/checkout@v4.1.1
+
+            - name: See release-tag
+              run : echo ${{ env.TRIGGER }}
+              
+            - name: Build artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: ${{ env.VERSION_TAG }}
+                path: ./
+
+            - name: Download artifact
+              uses: actions/download-artifact@v4
+              
+            - name: Ls after downloading artifact
+              run : ls -lah    
+
+            - name: See Github context
+              env : 
+                GITHUB_CONTEXT: ${{ toJson(github) }}
+              run : echo "$GITHUB_CONTEXT"
+
+            #- name: Print tag-name
+              #run : echo ${{ github.event_name.tag }}  
+            
+            - name: Run switch-case-action
+              env :
+                EVENT_NAME: ${{ github.event_name }}
+              uses: thaitype/actions-switch-case@v1
+              id: switch-case
+              with:
+                default: "its the default"
+                conditionals-with-values: |
+                  EVENT_NAME == 'push' => dev
+                  EVENT_NAME == 'workflow_dispatch'  => event is workflow_dispatch
+            
+            - name: Echo the result
+              run: echo ${{ steps.switch-case.outputs.match }} # Output: its the default 
+
+            - name: Send to Nexus/prod repo
+              run : curl --fail -u ${{secrets.NEXUS_UNAME}}:${{secrets.NEXUS_PSW}} --upload-file ${{env.VERSION_TAG}}  'https://d97f-46-162-196-212.ngrok-free.app/repository/prod/'
