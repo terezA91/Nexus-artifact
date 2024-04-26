@@ -26,30 +26,6 @@ jobs:
             - name: Download artifact
               uses: actions/download-artifact@v4
               
-            - name: Ls after downloading artifact
-              run : ls -lah    
 
-            - name: See Github context
-              env : 
-                GITHUB_CONTEXT: ${{ toJson(github) }}
-              run : echo "$GITHUB_CONTEXT"
-
-            #- name: Print tag-name
-              #run : echo ${{ github.event_name.tag }}  
-            
-            - name: Run switch-case-action
-              env :
-                EVENT_NAME: ${{ github.event_name }}
-              uses: thaitype/actions-switch-case@v1
-              id: switch-case
-              with:
-                default: "its the default"
-                conditionals-with-values: |
-                  EVENT_NAME == 'push' => dev
-                  EVENT_NAME == 'workflow_dispatch'  => event is workflow_dispatch
-            
-            - name: Echo the result
-              run: echo ${{ steps.switch-case.outputs.match }} # Output: its the default 
-
-            - name: Send to Nexus/prod repo
+            - name: Send to Nexus/prod repository
               run : curl --fail -u ${{secrets.NEXUS_UNAME}}:${{secrets.NEXUS_PSW}} --upload-file ${{env.VERSION_TAG}}  'https://d97f-46-162-196-212.ngrok-free.app/repository/prod/'

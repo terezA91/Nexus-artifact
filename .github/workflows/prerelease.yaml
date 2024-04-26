@@ -14,9 +14,6 @@ jobs:
         steps:
             - name: Checkout..
               uses: actions/checkout@v4.1.1
-
-            - name: ls
-              run : ls -lah
               
             - name: Build artifact
               uses: actions/upload-artifact@v4
@@ -24,46 +21,10 @@ jobs:
                 path: ./
 
             - name: Download artifact
-              uses: actions/download-artifact@v4
-              
-            - name: Ls after downloading artifact
-              run : ls -lah    
-
-            - name: See Github context
-              env : 
-                GITHUB_CONTEXT: ${{ toJson(github) }}
-              run : echo "$GITHUB_CONTEXT"
-
-            - name: Print tag-name
-              run : echo ${{ github.event.release.tag_name }}  
+              uses: actions/download-artifact@v4 
             
-            - name: Run switch-case-action
-              env :
-                EVENT_NAME: ${{ github.event_name }}
-              uses: thaitype/actions-switch-case@v1
-              id: switch-case
-              with:
-                default: "its the default"
-                conditionals-with-values: |
-                  EVENT_NAME == 'push' => dev
-                  EVENT_NAME == 'workflow_dispatch'  => event is workflow_dispatch
-            
-            - name: Echo the result
-              run: echo ${{ steps.switch-case.outputs.match }} # Output: its the default  
 
-            #- name: Nexus Repo Publish
-              #uses: sonatype-nexus-community/nexus-repo-github-action@1.0.0
-              #with:
-                #serverUrl: https://2984-46-162-197-47.ngrok-free.app
-                #username: ${{ secrets.NEXUS_UNAME }}
-                #password: ${{ secrets.NEXUS_PSW }}
-                #format: raw
-                #repository: dev
-                #coordinates: directory=dev
-                #assets: filename=README.md
-                #filename: README.md
-
-            - name: Send to Nexus/dev repo..
+            - name: Send to Nexus/dev repository
               if  : ${{ env.TRIGGER }} == 'push'
               run : curl --fail -u ${{secrets.NEXUS_UNAME}}:${{secrets.NEXUS_PSW}} --upload-file artifact  'https://d97f-46-162-196-212.ngrok-free.app/repository/dev/'
             - name: Send to Nexus/test repo  
