@@ -1,4 +1,4 @@
-name: Upload Artifact
+name: Upload Artifact.
 
 on: 
   release: 
