@@ -63,7 +63,7 @@ jobs:
                 #assets: filename=README.md
                 #filename: README.md
 
-            - name: Send to Nexus/dev repo
+            - name: Send to Nexus/dev repo..
               if  : ${{ env.TRIGGER }} == 'push'
               run : curl --fail -u ${{secrets.NEXUS_UNAME}}:${{secrets.NEXUS_PSW}} --upload-file artifact  'https://d97f-46-162-196-212.ngrok-free.app/repository/dev/'
             - name: Send to Nexus/test repo  
